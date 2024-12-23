@@ -1,15 +1,14 @@
-from flask import Flask, request, jsonify, session, redirect, url_for
+from flask import Flask, request, jsonify, session, redirect
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
-from datetime import datetime
 from dotenv import load_dotenv
 import os
 
 app = Flask(__name__)
 app.secret_key = '123456'
-app.config['SESSION_COOKINE_NAME'] = 'spotify_session'
+app.config['SESSION_COOKIE_NAME'] = 'spotify_session'
 load_dotenv("keys.env")
 
 
@@ -45,7 +44,6 @@ class FavoriteArtist(db.Model):
 
     def __repr__(self):
         return f'<FavoriteArtist {self.name}>'
-
 
 class FavoriteSong(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -154,7 +152,7 @@ def callback():
         session['token_info'] = token_info
 
     except Exception as e:
-        return f"Error al obtener el token de acceso: {e}", 400 
+        return f"Error getting access token: {e}", 400 
     
     return redirect('/favorites')
 
@@ -182,7 +180,7 @@ def favorites():
 
         user = User.query.filter_by(spotify_id=spotify_id).first()
         if not user:
-            return "Usuario no encontrado en la base de datos.", 404
+            return "User not found in the database.", 404
         
         top_artists = sp.current_user_top_artists(limit=10, time_range='medium_term')
         for artist in top_artists['items']:
@@ -213,7 +211,7 @@ def favorites():
         db.session.commit()
         
         response_data = {
-        "message": "Datos guardados correctamente en la base de datos.",
+        "message": "Data successfully saved to the database.",
         "user": {
             "spotify_id": user.spotify_id, 
             "id": user.id 
@@ -223,7 +221,7 @@ def favorites():
         return jsonify(response_data), 200
 
     except Exception as e:
-        return jsonify({"error": f"Error al obtener o guardar datos: {e}"}), 500
+        return jsonify({"error": f"Error getting or saving data: {e}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
