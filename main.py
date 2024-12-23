@@ -156,7 +156,7 @@ def callback():
     
     return redirect('/favorites')
 
-@app.route("/users")
+@app.route("/users", methods=['GET'])
 def users():
     users = User.query.all()
     user_list = [{"spotify_id": user.spotify_id, "access_token": user.access_token} for user in users]
