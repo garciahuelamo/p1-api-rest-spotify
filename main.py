@@ -81,24 +81,24 @@ def register():
 
     return jsonify({"message" : "User successfully created"}), 201
 
-@app.route("/users/<string:username>", methods=['PUT'])
-def update_users(username):
+@app.route("/users/<string:spotify_id>", methods=['PUT'])
+def update_users(spotify_id):
 
     if not request.is_json:
         return jsonify({"Error" : "Content-Type must be application/json"}), 415
     
     data = request.get_json()
-    user = User.query.filter_by(username=username).first()
+    user = User.query.filter_by(spotify_id=spotify_id).first()
 
     if not user:
         return jsonify({"Error" : "Missing user"}), 404
     
-    new_username = data.get("username")
+    new_spotify_id = data.get("spotify_id")
     new_email = data.get("email")
     new_password = data.get("password")
 
-    if new_username:
-        user.username = new_username
+    if new_spotify_id:
+        user.username = new_spotify_id
     if new_email:
         user.email = new_email
     if new_password:
@@ -106,11 +106,11 @@ def update_users(username):
 
     db.session.commit()
 
-    return jsonify({"message": f"User '{username}' was saved correctly"}), 200
+    return jsonify({"message": f"User '{spotify_id}' was saved correctly"}), 200
 
 @app.route("/users/<string:username>", methods=['DELETE'])
-def delete_user(username):
-    user = User.query.filter_by(username=username).first()
+def delete_user(spotify_id):
+    user = User.query.filter_by(spotify_id=spotify_id).first()
 
     if not user:
         return jsonify({"Error" : "User not found"}), 404
@@ -118,7 +118,7 @@ def delete_user(username):
     db.session.delete(user)
     db.session.commit()
 
-    return jsonify({"message": f"User '{username}' was deleted"}), 200
+    return jsonify({"message": f"User '{spotify_id}' was deleted"}), 200
 
 @app.route("/")
 def login():
@@ -209,16 +209,13 @@ def favorites():
                 db.session.add(new_song)
         
         db.session.commit()
-        
-        response_data = {
-        "message": "Data successfully saved to the database.",
-        "user": {
-            "spotify_id": user.spotify_id, 
-            "id": user.id 
-            }
-        }
 
-        return jsonify(response_data), 200
+        return jsonify({
+            "01message": "Artists",
+            "02artist": top_artists,
+            "03message": "Tracks",
+            "04message": top_tracks
+        })
 
     except Exception as e:
         return jsonify({"error": f"Error getting or saving data: {e}"}), 500
